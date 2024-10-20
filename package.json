@@ -12,7 +12,9 @@
     "@upstash/redis": "^1.34.2",
     "frog": "latest",
     "graphql-request": "^7.1.0",
-    "hono": "^4.6.3"
+    "hono": "^4.6.3",
+    "itty-fetcher": "^0.9.4",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20241011.0",
