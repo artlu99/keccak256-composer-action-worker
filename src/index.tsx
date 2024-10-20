@@ -2,7 +2,13 @@ import { Redis } from "@upstash/redis/cloudflare";
 import { Button, Frog } from "frog";
 import { neynar } from "frog/hubs";
 import { neynar as neynarMiddleware } from "frog/middlewares";
-import { getTextByCastHash } from "./graphql";
+import {
+  checkIsChannelEnabled,
+  disableChannel,
+  enableChannel,
+  getTextByCastHash,
+} from "./graphql";
+import { getChannelIdFromChannelUrl, getChannelOwner } from "./lib/warpcast";
 import { Bindings, NEYNAR_API_KEY } from "./secrets";
 import { slide } from "./slide";
 
@@ -32,6 +38,8 @@ app
     const { verified, frameData } = c;
 
     if (verified && frameData) {
+      const { fid: viewerFid } = frameData;
+
       const cast = c.var.cast;
       if (cast) {
         const { hash, text } = cast;
@@ -44,13 +52,31 @@ app
           console.error("Error in Whistles Yoga:", error);
         }
 
+        // check if viewerFid is an owner of the channel
+        const channelId = getChannelIdFromChannelUrl(cast.rootParentUrl);
+        const channelOwner = await getChannelOwner(channelId);
+        const isChannelEnabled = channelId
+          ? await checkIsChannelEnabled(channelId, c.env)
+          : false;
+
         return c.res({
           image: slide(
             "black",
             fullPlaintext,
             fullPlaintext.length <= 80 ? 60 : 30
           ),
-          intents: [<Button action="/qrcode">Composer QR Code</Button>],
+          intents:
+            viewerFid === channelOwner
+              ? isChannelEnabled
+                ? [
+                    <Button action="/qrcode">Composer QR Code</Button>,
+                    <Button action="/toggle-channel">Disable Channel</Button>,
+                  ]
+                : [
+                    <Button action="/qrcode">Composer QR Code</Button>,
+                    <Button action="/toggle-channel">Enable Channel</Button>,
+                  ]
+              : [<Button action="/qrcode">Composer QR Code</Button>],
         });
       } else {
         return c.res({
@@ -67,6 +93,62 @@ app
     }
   })
   .frame("/qrcode", (c) => c.res({ image: qrCode, imageAspectRatio: "1:1" }))
+  .frame("/toggle-channel", async (c) => {
+    const { verified, frameData } = c;
+
+    if (verified && frameData) {
+      const { fid: viewerFid } = frameData;
+
+      if (c.var.cast) {
+        const { rootParentUrl } = c.var.cast;
+
+        // check if viewerFid is an owner of the channel
+        const channelId = getChannelIdFromChannelUrl(rootParentUrl);
+        const channelOwner = await getChannelOwner(channelId);
+        const isChannelEnabled = channelId
+          ? await checkIsChannelEnabled(channelId, c.env)
+          : false;
+
+        if (channelId && channelOwner === viewerFid) {
+          if (isChannelEnabled) {
+            await disableChannel(channelId, c.env);
+            return c.res({
+              image: slide(
+                "gradient",
+                `fid ${viewerFid} disabled Whistles as channel owner of /${channelId}`
+              ),
+            });
+          } else {
+            await enableChannel(channelId, rootParentUrl, c.env);
+            return c.res({
+              image: slide(
+                "gradient",
+                `fid ${viewerFid} enabled Whistles as channel owner of /${channelId}`
+              ),
+            });
+          }
+        } else {
+          return c.res({
+            image: slide(
+              "gradient",
+              `fid ${viewerFid} not channel owner of /${channelId}, cannot toggle channel permissions`
+            ),
+          });
+        }
+      } else {
+        return c.res({
+          image: slide("black", "cast not found"),
+        });
+      }
+    } else {
+      return c.res({
+        image: slide(
+          "black",
+          "this endpoint should be called via verified Cast Action"
+        ),
+      });
+    }
+  })
   .castAction(
     "/cast-action",
     (c) => {
