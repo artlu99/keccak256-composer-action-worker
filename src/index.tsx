@@ -68,7 +68,7 @@ app
           image: slide(
             "black",
             textToDisplay,
-            textToDisplay.length <= 80 ? 60 : 30
+            textToDisplay.length <= 160 ? 60 : 30
           ),
           intents: [
             ...(viewerFid === channelOwner
