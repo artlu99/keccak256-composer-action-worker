@@ -71,7 +71,6 @@ app
             textToDisplay.length <= 80 ? 60 : 30
           ),
           intents: [
-            <Button action="/qrcode">Composer QR Code</Button>,
             ...(viewerFid === channelOwner
               ? [
                   <Button action="/toggle-channel">
@@ -79,6 +78,7 @@ app
                   </Button>,
                 ]
               : []),
+            <Button action="/qrcode">QR Code</Button>,
             ...(decodedText &&
             buttonValue !== "full" &&
             decodedText.trim() !== fullPlaintext.trim()
