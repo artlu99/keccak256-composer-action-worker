@@ -16,6 +16,7 @@ export const getTextByCastHash = async (
         isDecrypted: boolean;
         timestamp: number;
         text: string;
+        decodedText?: string
       };
     }>(
       gql`
@@ -24,6 +25,7 @@ export const getTextByCastHash = async (
             isDecrypted
             timestamp
             text
+            decodedText
           }
         }
       `,

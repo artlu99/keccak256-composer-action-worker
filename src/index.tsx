@@ -35,7 +35,7 @@ app
     })
   )
   .frame("ephemeral-frame", async (c) => {
-    const { verified, frameData } = c;
+    const { verified, buttonValue, frameData } = c;
 
     if (verified && frameData) {
       const { fid: viewerFid } = frameData;
@@ -44,10 +44,15 @@ app
       if (cast) {
         const { hash, text } = cast;
 
-        let fullPlaintext = text;
+        let textToDisplay: string = text;
+        let fullPlaintext: string = text;
+        let decodedText: string | undefined = undefined;
         try {
           const res = await getTextByCastHash(hash, frameData.fid, c.env);
+          textToDisplay =
+            buttonValue === "full" ? res.text : res.decodedText ?? res.text;
           fullPlaintext = res.text;
+          decodedText = res.decodedText;
         } catch (error) {
           console.error("Error in Whistles Yoga:", error);
         }
@@ -62,21 +67,28 @@ app
         return c.res({
           image: slide(
             "black",
-            fullPlaintext,
-            fullPlaintext.length <= 80 ? 60 : 30
+            textToDisplay,
+            textToDisplay.length <= 80 ? 60 : 30
           ),
-          intents:
-            viewerFid === channelOwner
-              ? isChannelEnabled
-                ? [
-                    <Button action="/qrcode">Composer QR Code</Button>,
-                    <Button action="/toggle-channel">Disable Channel</Button>,
-                  ]
-                : [
-                    <Button action="/qrcode">Composer QR Code</Button>,
-                    <Button action="/toggle-channel">Enable Channel</Button>,
-                  ]
-              : [<Button action="/qrcode">Composer QR Code</Button>],
+          intents: [
+            <Button action="/qrcode">Composer QR Code</Button>,
+            ...(viewerFid === channelOwner
+              ? [
+                  <Button action="/toggle-channel">
+                    {isChannelEnabled ? "Disable" : "Enable"} Channel
+                  </Button>,
+                ]
+              : []),
+            ...(decodedText &&
+            buttonValue !== "full" &&
+            decodedText.trim() !== fullPlaintext.trim()
+              ? [
+                  <Button action="/ephemeral-frame" value="full">
+                    Show more
+                  </Button>,
+                ]
+              : []),
+          ],
         });
       } else {
         return c.res({
