@@ -27,3 +27,7 @@ yarn-error.log*
 
 # frog static assets
 public/frog
+
+# hacks
+
+src/secrets.ts
