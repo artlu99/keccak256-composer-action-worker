@@ -167,9 +167,9 @@ app
       return c.res({ type: "frame", path: "/ephemeral-frame" });
     },
     {
-      name: "Read Keccak256",
+      name: "Read SassyHash",
       icon: "eye",
-      description: "Read a message hashed with Keccak256 Composer Action",
+      description: "Read Keccak256 hashes sent via Composer Action",
       aboutUrl,
     }
   )
