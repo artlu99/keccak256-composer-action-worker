@@ -63,7 +63,11 @@ const getChannel = async (
     const validated = WarpcastChannelResponseSchema.parse(data);
     return validated.result.channel;
   } catch (e) {
-    console.error("Failed to parse Warpcast API Channel response", e);
+    console.error(
+      "Failed to parse Warpcast Channel API response for channelId:",
+      channelId,
+      e
+    );
     return null;
   }
 };
