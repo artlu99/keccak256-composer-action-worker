@@ -53,16 +53,18 @@ const WarpcastChannelResponseSchema = z.object({
   }),
 });
 
-const getChannel = async (channelId: string): Promise<WarpcastChannel> => {
-  const data = await fetcher().get(
-    `${WARPCAST_API_URL}/v1/channel?channelId=${channelId}`
-  );
+const getChannel = async (
+  channelId: string
+): Promise<WarpcastChannel | null> => {
   try {
+    const data = await fetcher().get(
+      `${WARPCAST_API_URL}/v1/channel?channelId=${channelId}`
+    );
     const validated = WarpcastChannelResponseSchema.parse(data);
     return validated.result.channel;
   } catch (e) {
     console.error("Failed to parse Warpcast API Channel response", e);
-    throw new Error("Failed to parse Warpcast API Channel response");
+    return null;
   }
 };
 
@@ -73,7 +75,7 @@ export const getChannelOwner = async (
     return undefined;
   }
   const owner = await getChannel(channelId);
-  return owner.leadFid;
+  return owner?.leadFid;
 };
 
 export const getChannelIdFromChannelUrl = (channelUrl: string | undefined) => {
