@@ -192,8 +192,7 @@ app
       });
 
       // generate one-time nonce
-      // TODO: more secure nonce
-      const nonce = (fid + timestamp + 42069).toString(16);
+      const nonce = crypto.getRandomValues(new Uint8Array(16)).join(''); // Generate a secure random nonce
       await redis.set("nonce-" + nonce, true, { ex: 600 }); // 10 minutes TTL
       const oneTimeUrl =
         `${browserLocation}/encode` +
