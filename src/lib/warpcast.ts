@@ -1,5 +1,6 @@
 import { fetcher } from "itty-fetcher";
 import { z } from "zod";
+import { legacyChannels } from "./legacy-channels";
 
 const WARPCAST_API_URL = "https://api.warpcast.com";
 
@@ -83,12 +84,9 @@ export const getChannelOwner = async (
 };
 
 export const getChannelIdFromChannelUrl = (channelUrl: string | undefined) => {
-  if (
-    // TODO: replace temporary hack
-    channelUrl ===
-    "chain://eip155:7777777/erc721:0xe96c21b136a477a6a97332694f0caae9fbb05634"
-  ) {
-    return "music";
-  }
-  return channelUrl?.split("/").pop();
+  return (
+    legacyChannels.find(
+      (c: { url: string; id: string }) => c.url === channelUrl
+    )?.id ?? channelUrl?.split("/").pop()
+  );
 };
