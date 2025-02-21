@@ -13,7 +13,8 @@ import { Bindings, NEYNAR_API_KEY } from "./secrets";
 import { slide } from "./slide";
 
 const title = "Keccak256 Composer Action";
-const browserLocation = "https://keccak256-composer-action.vercel.app";
+const browserLocation = "https://keccak256-composer-action.artlu.workers.dev";
+const externalRoute = "https://keccak256-composer-action.vercel.app/encode";
 const aboutUrl = "https://github.com/artlu99/keccak256-composer-action";
 const aboutUrlWorker =
   "https://github.com/artlu99/keccak256-composer-action-worker";
@@ -192,11 +193,9 @@ app
       });
 
       // generate one-time nonce
-      const nonce = crypto.getRandomValues(new Uint8Array(16)).join(''); // Generate a secure random nonce
+      const nonce = crypto.getRandomValues(new Uint8Array(16)).join(""); // Generate a secure random nonce
       await redis.set("nonce-" + nonce, true, { ex: 600 }); // 10 minutes TTL
-      const oneTimeUrl =
-        `${browserLocation}/encode` +
-        `?fid=${fid}&text=${text}&timestamp=${timestamp}&messageHash=${messageHash}&nonce=${nonce}`;
+      const oneTimeUrl = `${browserLocation}/encode?fid=${fid}&text=${text}&timestamp=${timestamp}&messageHash=${messageHash}&nonce=${nonce}`;
 
       return c.res({ title, url: oneTimeUrl });
     },
@@ -208,6 +207,22 @@ app
       imageUrl:
         "https://r2.fc-clients-cast-action.artlu.xyz/Keccak256-logo-256-256.png",
     }
-  );
+  )
+  .hono.get("/encode", (c) => {
+    const url = new URL(externalRoute);
+    url.search = c.req.url.split("?")[1] || ""; // Copy all query parameters
+    console.log(url.toString());
+
+    const useHttpRedirect = true;
+    if (useHttpRedirect) {
+      return Response.redirect(url.toString(), 302);
+    } else {
+      // rather than returning a redirect response, return the smallest possible html page with an immediate redirect
+      return new Response(
+        `<html><body>Hello<script>window.location.href = "${url.toString()}";</script></body></html>`,
+        { status: 200, headers: { "Content-Type": "text/html" } }
+      );
+    }
+  });
 
 export default app;
