@@ -58,6 +58,7 @@ app
           // Anonymously log cast decoding
           const redisCache = new RedisCache(c.env);
           await redisCache.incrementActionUsage(
+            viewerFid,
             hash,
             author.fid,
             rootParentUrl

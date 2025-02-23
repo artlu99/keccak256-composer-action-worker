@@ -19,17 +19,35 @@ export class RedisCache {
   }
 
   async incrementActionUsage(
+    viewerFid: number,
     castHash: string,
     fid: number,
     rootParentUrl: string,
     ttl: number = DEFAULT_TTL
   ): Promise<void> {
-    const actionUsageKey = "action-usage";
-    await this.redis.hincrby(
-      actionUsageKey,
-      `${fid}-${rootParentUrl}-${castHash}`,
-      1
-    );
-    await this.redis.expire(actionUsageKey, ttl);
+    const usageKey = `${fid}-${rootParentUrl}-${castHash}`;
+    const interactionsSetKey = `interactions-${usageKey}`;
+
+    // Using SHA-1 for viewer ID hashing:
+    // - Faster than SHA-256 (~30% performance improvement)
+    // - Shorter output (40 chars vs 64) = less Redis storage
+    // - Sufficient for deduplication purposes (not used for security)
+    const hashedViewerId = await crypto.subtle
+      .digest("SHA-1", new TextEncoder().encode(viewerFid.toString()))
+      .then((hash) =>
+        Array.from(new Uint8Array(hash))
+          .map((b) => b.toString(16).padStart(2, "0"))
+          .join("")
+      );
+
+    // SADD returns 1 if the element was added, 0 if it already existed
+    const wasAdded = await this.redis.sadd(interactionsSetKey, hashedViewerId);
+
+    if (wasAdded === 1) {
+      await this.redis.hincrby("action-usage", usageKey, 1);
+    }
+
+    await this.redis.expire(interactionsSetKey, ttl);
+    await this.redis.expire("action-usage", ttl);
   }
 }
