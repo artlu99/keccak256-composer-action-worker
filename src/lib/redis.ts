@@ -5,12 +5,14 @@ const DEFAULT_TTL = 60 * 60 * 24 * 7; // 7 days
 
 export class RedisCache {
   private redis: Redis;
+  private salt: string;
 
   constructor(env: Bindings) {
     this.redis = new Redis({
       url: env.UPSTASH_REDIS_REST_URL,
       token: env.UPSTASH_REDIS_REST_TOKEN,
     });
+    this.salt = env.ANALYTICS_SALT;
   }
 
   async setNonce(nonce: string, ttl: number = 600): Promise<void> {
@@ -28,12 +30,8 @@ export class RedisCache {
     const usageKey = `${fid}-${rootParentUrl}-${castHash}`;
     const interactionsSetKey = `interactions-${usageKey}`;
 
-    // Using SHA-1 for viewer ID hashing:
-    // - Faster than SHA-256 (~30% performance improvement)
-    // - Shorter output (40 chars vs 64) = less Redis storage
-    // - Sufficient for deduplication purposes (not used for security)
     const hashedViewerId = await crypto.subtle
-      .digest("SHA-1", new TextEncoder().encode(viewerFid.toString()))
+      .digest("SHA-1", new TextEncoder().encode(`${this.salt}-${viewerFid}`))
       .then((hash) =>
         Array.from(new Uint8Array(hash))
           .map((b) => b.toString(16).padStart(2, "0"))
