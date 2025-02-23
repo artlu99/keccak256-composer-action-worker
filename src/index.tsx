@@ -1,4 +1,3 @@
-import { Redis } from "@upstash/redis/cloudflare";
 import { Button, Frog } from "frog";
 import { neynar } from "frog/hubs";
 import { neynar as neynarMiddleware } from "frog/middlewares";
@@ -8,6 +7,7 @@ import {
   enableChannel,
   getTextByCastHash,
 } from "./graphql";
+import { RedisCache } from "./lib/redis";
 import { getChannelIdFromChannelUrl, getChannelOwner } from "./lib/warpcast";
 import { Bindings, NEYNAR_API_KEY } from "./secrets";
 import { slide } from "./slide";
@@ -43,7 +43,7 @@ app
 
       const cast = c.var.cast;
       if (cast) {
-        const { hash, text } = cast;
+        const { hash, text, author, rootParentUrl } = cast;
 
         let textToDisplay: string = text;
         let fullPlaintext: string = text;
@@ -54,6 +54,14 @@ app
             buttonValue === "full" ? res.text : res.decodedText ?? res.text;
           fullPlaintext = res.text;
           decodedText = res.decodedText;
+
+          // Anonymously log cast decoding
+          const redisCache = new RedisCache(c.env);
+          await redisCache.incrementActionUsage(
+            hash,
+            author.fid,
+            rootParentUrl
+          );
         } catch (error) {
           console.error("Error in Whistles Yoga:", error);
         }
@@ -187,14 +195,10 @@ app
         },
       } = actionData;
 
-      const redis = new Redis({
-        url: c.env.UPSTASH_REDIS_REST_URL,
-        token: c.env.UPSTASH_REDIS_REST_TOKEN,
-      });
-
-      // generate one-time nonce
-      const nonce = crypto.getRandomValues(new Uint8Array(16)).join(""); // Generate a secure random nonce
-      await redis.set("nonce-" + nonce, true, { ex: 600 }); // 10 minutes TTL
+      // generate a secure random one-time nonce
+      const nonce = crypto.getRandomValues(new Uint8Array(16)).join("");
+      const redisCache = new RedisCache(c.env);
+      await redisCache.setNonce(nonce);
       const oneTimeUrl = `${browserLocation}/encode?fid=${fid}&text=${text}&timestamp=${timestamp}&messageHash=${messageHash}&nonce=${nonce}`;
 
       return c.res({ title, url: oneTimeUrl });
