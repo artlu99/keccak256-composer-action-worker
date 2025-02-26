@@ -24,11 +24,12 @@ export class RedisCache {
     viewerFid: number,
     castHash: string,
     fid: number,
+    username: string,
     rootParentUrl: string,
     ttl: number = DEFAULT_TTL
   ): Promise<void> {
-    const usageKey = `${fid}-${rootParentUrl}-${castHash}`;
-    const interactionsSetKey = `interactions-${usageKey}`;
+    const usageKey = `${fid}-${username}-${rootParentUrl}-${castHash}`;
+    const interactionsSetKey = `interactions-${castHash}`;
 
     const hashedViewerId = await crypto.subtle
       .digest("SHA-1", new TextEncoder().encode(`${this.salt}-${viewerFid}`))

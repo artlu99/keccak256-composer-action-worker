@@ -54,17 +54,22 @@ app
             buttonValue === "full" ? res.text : res.decodedText ?? res.text;
           fullPlaintext = res.text;
           decodedText = res.decodedText;
+        } catch (error) {
+          console.error("Error in Whistles Yoga:", error);
+        }
 
+        try {
           // Anonymously log cast decoding
           const redisCache = new RedisCache(c.env);
           await redisCache.incrementActionUsage(
             viewerFid,
             hash,
             author.fid,
+            author.username,
             rootParentUrl
           );
         } catch (error) {
-          console.error("Error in Whistles Yoga:", error);
+          console.error("Error in Redis logging:", error);
         }
 
         // check if viewerFid is an owner of the channel
