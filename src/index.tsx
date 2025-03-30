@@ -205,6 +205,7 @@ app
       const nonce = crypto.getRandomValues(new Uint8Array(16)).join("");
       const redisCache = new RedisCache(c.env);
       await redisCache.setNonce(nonce);
+      // awesome bug find 2025-03-30: h/t horsefacts.eth and accountless.eth
       const oneTimeUrl = `${browserLocation}/encode?fid=${fid}&text=${encodeURIComponent(
         text
       )}&timestamp=${timestamp}&messageHash=${encodeURIComponent(
