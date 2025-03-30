@@ -205,7 +205,11 @@ app
       const nonce = crypto.getRandomValues(new Uint8Array(16)).join("");
       const redisCache = new RedisCache(c.env);
       await redisCache.setNonce(nonce);
-      const oneTimeUrl = `${browserLocation}/encode?fid=${fid}&text=${text}&timestamp=${timestamp}&messageHash=${messageHash}&nonce=${nonce}`;
+      const oneTimeUrl = `${browserLocation}/encode?fid=${fid}&text=${encodeURIComponent(
+        text
+      )}&timestamp=${timestamp}&messageHash=${encodeURIComponent(
+        messageHash
+      )}&nonce=${encodeURIComponent(nonce)}`;
 
       return c.res({ title, url: oneTimeUrl });
     },
