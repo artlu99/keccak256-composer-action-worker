@@ -20,7 +20,7 @@ const aboutUrlWorker =
   "https://github.com/artlu99/keccak256-composer-action-worker";
 const qrCode =
   "https://r2.fc-clients-cast-action.artlu.xyz/qr-install-keccak256-composer-action.png";
-
+const DO_NOT_TRACK_AFTER = 1743523200000;
 export const app = new Frog<{ Bindings: Bindings }>({
   browserLocation,
   hub: neynar({ apiKey: NEYNAR_API_KEY }),
@@ -57,21 +57,21 @@ app
         } catch (error) {
           console.error("Error in Whistles Yoga:", error);
         }
-
-        try {
-          // Anonymously log cast decoding
-          const redisCache = new RedisCache(c.env);
-          await redisCache.incrementActionUsage(
-            viewerFid,
-            hash,
-            author.fid,
-            author.username,
-            rootParentUrl
-          );
-        } catch (error) {
-          console.error("Error in Redis logging:", error);
+        if (Date.now() < DO_NOT_TRACK_AFTER) {
+          try {
+            // Anonymously log cast decoding
+            const redisCache = new RedisCache(c.env);
+            await redisCache.incrementActionUsage(
+              viewerFid,
+              hash,
+              author.fid,
+              author.username,
+              rootParentUrl
+            );
+          } catch (error) {
+            console.error("Error in Redis logging:", error);
+          }
         }
-
         // check if viewerFid is an owner of the channel
         const channelId = getChannelIdFromChannelUrl(cast.rootParentUrl);
         const channelOwner = await getChannelOwner(channelId);
