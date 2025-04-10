@@ -80,11 +80,7 @@ app
           : false;
 
         return c.res({
-          image: slide(
-            "black",
-            textToDisplay,
-            textToDisplay.length <= 160 ? 60 : 30
-          ),
+          image: `https://frames-cached-dynamic-og.artlu.workers.dev/og?mainText=na&description=${encodeURIComponent(textToDisplay)}&footerText=na&style=5`, 
           intents: [
             ...(viewerFid === channelOwner
               ? [
