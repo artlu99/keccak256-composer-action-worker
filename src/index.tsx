@@ -80,7 +80,9 @@ app
           : false;
 
         return c.res({
-          image: `https://frames-cached-dynamic-og.artlu.workers.dev/og?mainText=na&description=${encodeURIComponent(textToDisplay)}&footerText=na&style=5`, 
+          image: `https://frames-cached-dynamic-og.artlu.workers.dev/og?mainText=na&description=${encodeURIComponent(
+            textToDisplay
+          )}&footerText=na&style=5`,
           intents: [
             ...(viewerFid === channelOwner
               ? [
@@ -229,6 +231,7 @@ app
       <html>
         <head>
           <title>${title}</title>
+          <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
           <style>
             body, html {
               margin: 0;
