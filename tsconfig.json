@@ -19,7 +19,7 @@
 		"noUnusedParameters": true,
 		"noFallthroughCasesInSwitch": true,
 
-		"types": ["frog/client", "@cloudflare/workers-types/2023-07-01"]
+		"types": ["frog/client"]
 	},
 	"include": ["**/*.ts", "**/*.tsx", "src/graphql/index.ts"]
 }
