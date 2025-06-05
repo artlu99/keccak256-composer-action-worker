@@ -9,7 +9,7 @@ import {
 } from "./graphql";
 import { RedisCache } from "./lib/redis";
 import { getChannelIdFromChannelUrl, getChannelOwner } from "./lib/warpcast";
-import { Bindings, NEYNAR_API_KEY } from "./secrets";
+import { type Bindings, NEYNAR_API_KEY } from "./secrets";
 import { slide } from "./slide";
 
 const title = "Keccak256 Composer Action";
@@ -86,36 +86,36 @@ app
           intents: [
             ...(viewerFid === channelOwner
               ? [
-                  <Button action="/toggle-channel">
+                  <Button action="/toggle-channel" key="toggle-channel">
                     {isChannelEnabled ? "Disable" : "Enable"} Channel
                   </Button>,
                 ]
               : []),
-            <Button action="/qrcode">QR Code</Button>,
+            <Button action="/qrcode" key="qrcode">
+              QR Code
+            </Button>,
             ...(decodedText &&
             buttonValue !== "full" &&
             decodedText.trim() !== fullPlaintext.trim()
               ? [
-                  <Button action="/ephemeral-frame" value="full">
+                  <Button action="/ephemeral-frame" value="full" key="show-more">
                     Show more
                   </Button>,
                 ]
               : []),
           ],
         });
-      } else {
-        return c.res({
-          image: slide("black", "Cast not found, possible Hub error"),
-        });
-      }
-    } else {
+      } 
       return c.res({
-        image: slide(
-          "black",
-          "this endpoint should be called via verified Cast Action"
-        ),
+        image: slide("black", "Cast not found, possible Hub error"),
       });
-    }
+    } 
+    return c.res({
+      image: slide(
+        "black",
+        "this endpoint should be called via verified Cast Action"
+      ),
+    });
   })
   .frame("/qrcode", (c) => c.res({ image: qrCode, imageAspectRatio: "1:1" }))
   .frame("/toggle-channel", async (c) => {
@@ -143,36 +143,32 @@ app
                 `fid ${viewerFid} disabled Whistles as channel owner of /${channelId}`
               ),
             });
-          } else {
-            await enableChannel(channelId, rootParentUrl, c.env);
-            return c.res({
-              image: slide(
-                "gradient",
-                `fid ${viewerFid} enabled Whistles as channel owner of /${channelId}`
-              ),
-            });
-          }
-        } else {
+          } 
+          await enableChannel(channelId, rootParentUrl, c.env);
           return c.res({
             image: slide(
               "gradient",
-              `fid ${viewerFid} not channel owner of /${channelId}, cannot toggle channel permissions`
+              `fid ${viewerFid} enabled Whistles as channel owner of /${channelId}`
             ),
           });
-        }
-      } else {
+        } 
         return c.res({
-          image: slide("black", "cast not found"),
+          image: slide(
+            "gradient",
+            `fid ${viewerFid} not channel owner of /${channelId}, cannot toggle channel permissions`
+          ),
         });
-      }
-    } else {
+      } 
       return c.res({
-        image: slide(
-          "black",
-          "this endpoint should be called via verified Cast Action"
-        ),
+        image: slide("black", "cast not found"),
       });
-    }
+    } 
+    return c.res({
+      image: slide(
+        "black",
+        "this endpoint should be called via verified Cast Action"
+      ),
+    });
   })
   .castAction(
     "/cast-action",
