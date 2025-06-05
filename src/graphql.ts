@@ -1,25 +1,25 @@
 import { GraphQLClient, gql } from "graphql-request";
-import { Bindings } from "./secrets";
+import type { Bindings } from "./secrets";
 
 export const getTextByCastHash = async (
-  castHash: string,
-  fid: number,
-  env: Bindings
+	castHash: string,
+	fid: number,
+	env: Bindings,
 ) => {
-  const graphQLClient = new GraphQLClient(env.YOGA_WHISTLES_ENDPOINT, {
-    headers: { authorization: `Bearer ${env.YOGA_WHISTLES_BEARER}` },
-  });
+	const graphQLClient = new GraphQLClient(env.YOGA_WHISTLES_ENDPOINT, {
+		headers: { authorization: `Bearer ${env.YOGA_WHISTLES_BEARER}` },
+	});
 
-  try {
-    const cast = await graphQLClient.request<{
-      getTextByCastHash: {
-        isDecrypted: boolean;
-        timestamp: number;
-        text: string;
-        decodedText?: string
-      };
-    }>(
-      gql`
+	try {
+		const cast = await graphQLClient.request<{
+			getTextByCastHash: {
+				isDecrypted: boolean;
+				timestamp: number;
+				text: string;
+				decodedText?: string;
+			};
+		}>(
+			gql`
         query MyQuery($castHash: String!, $fid: Int!) {
           getTextByCastHash(castHash: $castHash, viewerFid: $fid) {
             isDecrypted
@@ -29,64 +29,64 @@ export const getTextByCastHash = async (
           }
         }
       `,
-      {
-        castHash,
-        fid,
-      }
-    );
-    return cast.getTextByCastHash;
-  } catch (error: any) {
-    if (error.response) {
-      console.error("Error response:", error);
-    }
-    throw new Error("Failed to get cast by hash");
-  }
+			{
+				castHash,
+				fid,
+			},
+		);
+		return cast.getTextByCastHash;
+	} catch (error: any) {
+		if (error.response) {
+			console.error("Error response:", error);
+		}
+		throw new Error("Failed to get cast by hash");
+	}
 };
 
 export const checkIsChannelEnabled = async (
-  channelId: string,
-  env: Bindings
+	channelId: string,
+	env: Bindings,
 ) => {
-  const graphQLClient = new GraphQLClient(env.YOGA_WHISTLES_ENDPOINT, {
-    headers: { authorization: `Bearer ${env.YOGA_WHISTLES_BEARER}` },
-  });
+	const graphQLClient = new GraphQLClient(env.YOGA_WHISTLES_ENDPOINT, {
+		headers: { authorization: `Bearer ${env.YOGA_WHISTLES_BEARER}` },
+	});
 
-  try {
-    const enabledChannels = await graphQLClient.request<{
-      getEnabledChannels: string[];
-    }>(
-      gql`
+	try {
+		const enabledChannels = await graphQLClient.request<{
+			getEnabledChannels: string[];
+		}>(
+			gql`
         query getEnabledChannels {
           getEnabledChannels
         }
-      `
-    );
-    return enabledChannels.getEnabledChannels.includes(channelId);
-  } catch (error: any) {
-    if (error.response) {
-      console.error("Error response:", error);
-    }
-    throw new Error("Failed to get channels list");
-  }
+      `,
+		);
+		return enabledChannels.getEnabledChannels.includes(channelId);
+	} catch (error: any) {
+		if (error.response) {
+			console.error("Error response:", error);
+		}
+		throw new Error("Failed to get channels list");
+	}
 };
 
 export const enableChannel = async (
-  channelId: string,
-  parentUrl: string,
-  env: Bindings
+	channelId: string,
+	parentUrl: string,
+	env: Bindings,
 ) => {
-  const graphQLClient = new GraphQLClient(env.YOGA_WHISTLES_ENDPOINT, {
-    headers: { authorization: `Bearer ${env.YOGA_WHISTLES_BEARER}` },
-  });
+	const graphQLClient = new GraphQLClient(env.YOGA_WHISTLES_ENDPOINT, {
+		headers: { authorization: `Bearer ${env.YOGA_WHISTLES_BEARER}` },
+	});
 
-  try {
-    const enableChannel = await graphQLClient.request<{
-      EnableChannel: {
-        message: string;
-        success: string;
-      };
-    }>(
-      gql`
+	try {
+		const enableChannel = await graphQLClient.request<{
+			EnableChannel: {
+				message: string;
+				success: string;
+			};
+		}>(
+			gql`
         mutation EnableChannel($channelId: String!, $parentUrl: String!) {
           enableChannel(
             input: { channelId: $channelId, parentUrl: $parentUrl }
@@ -96,33 +96,33 @@ export const enableChannel = async (
           }
         }
       `,
-      {
-        channelId,
-        parentUrl,
-      }
-    );
-    return enableChannel;
-  } catch (error: any) {
-    if (error.response) {
-      console.error("Error response:", error);
-    }
-    throw new Error("Failed to enable channel");
-  }
+			{
+				channelId,
+				parentUrl,
+			},
+		);
+		return enableChannel;
+	} catch (error: any) {
+		if (error.response) {
+			console.error("Error response:", error);
+		}
+		throw new Error("Failed to enable channel");
+	}
 };
 
 export const disableChannel = async (channelId: string, env: Bindings) => {
-  const graphQLClient = new GraphQLClient(env.YOGA_WHISTLES_ENDPOINT, {
-    headers: { authorization: `Bearer ${env.YOGA_WHISTLES_BEARER}` },
-  });
+	const graphQLClient = new GraphQLClient(env.YOGA_WHISTLES_ENDPOINT, {
+		headers: { authorization: `Bearer ${env.YOGA_WHISTLES_BEARER}` },
+	});
 
-  try {
-    const disableChannel = await graphQLClient.request<{
-      disableChannel: {
-        message: string;
-        success: string;
-      };
-    }>(
-      gql`
+	try {
+		const disableChannel = await graphQLClient.request<{
+			disableChannel: {
+				message: string;
+				success: string;
+			};
+		}>(
+			gql`
         mutation DisableChannel($channelId: String!) {
           disableChannel(
             input: { channelId: $channelId }
@@ -132,15 +132,15 @@ export const disableChannel = async (channelId: string, env: Bindings) => {
           }
         }
       `,
-      {
-        channelId,
-      }
-    );
-    return disableChannel;
-  } catch (error: any) {
-    if (error.response) {
-      console.error("Error response:", error);
-    }
-    throw new Error("Failed to disable channel");
-  }
+			{
+				channelId,
+			},
+		);
+		return disableChannel;
+	} catch (error: any) {
+		if (error.response) {
+			console.error("Error response:", error);
+		}
+		throw new Error("Failed to disable channel");
+	}
 };
