@@ -5,9 +5,5 @@
 	"compatibility_date": "2025-05-08",
 	"compatibility_flags": ["nodejs_compat"],
 	"site": { "bucket": "./public" },
-	"observability": { "enabled": true },
-	"vars": {
-		"UPSTASH_REDIS_REST_URL": "https://devoted-zebra-55925.upstash.io",
-		"YOGA_WHISTLES_ENDPOINT": "https://whistles.artlu.xyz/graphql"
-	}
+	"observability": { "enabled": true }
 }

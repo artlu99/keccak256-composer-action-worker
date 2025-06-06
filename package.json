@@ -1,22 +1,8 @@
 {
-  "name": "keccak256-composer-action",
-  "private": true,
-  "type": "module",
-  "scripts": {
-    "dev": "frog dev",
-    "wrangler:dev": "wrangler dev src/index.tsx",
-    "wrangler:deploy": "wrangler deploy --minify src/index.tsx",
-    "wrangler:static": "cp -r ./node_modules/frog/_lib/ui/.frog ./public/frog"
-  },
-  "dependencies": {
-    "@upstash/redis": "^1.35.0",
-    "frog": "latest",
-    "graphql-request": "^7.2.0",
-    "hono": "^4.7.11",
-    "itty-fetcher": "^0.9.4",
-    "zod": "^3.25.51"
-  },
-  "devDependencies": {
-    "wrangler": "4.15.1"
-  }
+	"name": "keccak256-composer-action",
+	"private": true,
+	"type": "module",
+	"scripts": { "deploy": "wrangler deploy --minify src/index.tsx" },
+	"dependencies": { "frog": "latest", "hono": "^4.7.11" },
+	"devDependencies": { "wrangler": "4.15.1" }
 }
