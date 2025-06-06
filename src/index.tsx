@@ -1,9 +1,9 @@
 import { Button, Frog } from "frog";
+import { html } from "hono/html";
 import { slide } from "./slide";
 
 const title = "Keccak256 Composer Action";
 const browserLocation = "https://keccak256-composer-action.artlu.workers.dev";
-const externalRoute = "https://keccak256-composer-action.vercel.app/encode";
 const aboutUrl = "https://github.com/artlu99/keccak256-composer-action";
 const aboutUrlWorker =
 	"https://github.com/artlu99/keccak256-composer-action-worker";
@@ -27,13 +27,13 @@ to enable Share Action`;
 				)}&footerText=na&style=5`,
 				intents: [
 					<Button.Link
-						key="snappa-deeplink"
+						key="deeplink"
 						href={`https://snappa-mini-app.artlu.workers.dev/sassy?castHash=${hash}&castFid=${fid}`}
 					>
 						Mobile
 					</Button.Link>,
 					<Button.Link
-						key="snappa-permalink"
+						key="permalink"
 						href={`https://farcaster.xyz/miniapps/zTVU_TOaKbz1/snappa--/sassy?castHash=${hash}&castFid=${fid}`}
 					>
 						Snappa
@@ -54,17 +54,14 @@ to enable Share Action`;
 		{
 			name: "Read SassyHash",
 			icon: "eye",
-			description: "Read Keccak256 hashes sent via Composer Action",
+			description: "Read Keccak256 hashes",
 			aboutUrl,
 		},
 	)
 	.composerAction(
 		"/",
 		async (c) => {
-			// generate a secure random one-time nonce
-			const nonce = crypto.getRandomValues(new Uint8Array(16)).join("");
-			// awesome bug find 2025-03-30: h/t horsefacts.eth and accountless.eth
-			const oneTimeUrl = `${browserLocation}/encode?nonce=${encodeURIComponent(nonce)}`;
+			const oneTimeUrl = `${browserLocation}/encode`;
 
 			return c.res({ title, url: oneTimeUrl });
 		},
@@ -78,56 +75,44 @@ to enable Share Action`;
 		},
 	)
 	.hono.get("/encode", (c) => {
-		const url = new URL(externalRoute);
-		url.search = c.req.url.split("?")[1] || ""; // Copy all query parameters
+		const currentYear = new Date().getFullYear();
 
-		// Return an HTML page that loads the external content in an iframe
-		return new Response(
-			`<!DOCTYPE html>
-      <html>
-        <head>
-          <title>${title}</title>
-          <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-          <style>
-            body, html {
-              margin: 0;
-              padding: 0;
-              min-width: 375px;
-              min-height: 667px;
-              width: 100%;
-              height: 100vh;
-              display: flex;
-              justify-content: center;
-              align-items: center;
-            }
-            iframe {
-              min-width: 375px;
-              min-height: 667px;
-              width: 100%;
-              height: 100%;
-              max-width: 100vw;
-              max-height: 100vh;
-              border: none;
-              margin: 0;
-              padding: 0;
-              overflow: hidden;
-              box-sizing: border-box;
-            }
-          </style>
-        </head>
-        <body>
-          <iframe src="${url.toString()}"></iframe>
-          <script>
-            // Listen for messages from the iframe and forward them to the parent
-            window.addEventListener('message', function(event) {
-              // Only forward messages from our trusted external domain
-              if (event.origin === '${new URL(externalRoute).origin}') {
-                window.parent.postMessage(event.data, '*');
-              }
-            });
-          </script>
-        </body>
-      </html>`,
+		return c.html(
+			html`<!DOCTYPE html>
+<html>
+	<head>
+		<title>${title}</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+		<link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
+		<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+	</head>
+	<body>
+		<div class="artboard phone-1">
+			<div class="card w-96 bg-base-100">
+				<div class="card-body">
+					<div class="flex flex-col justify-center">
+						<h2 class="text-xl text-warning">
+							It's ${currentYear}, fam.
+							<br />
+							Time to use
+							<br />🐟 Snappa Mini App
+						</h2>
+						<br />
+						<p class="text-sm italic my-5 text-accent">
+							<a
+								href="https://farcaster.xyz/miniapps/zTVU_TOaKbz1/snappa--"
+								target="_blank"
+								rel="noopener noreferrer"
+							>
+								https://farcaster.xyz/miniapps/zTVU_TOaKbz1/snappa--
+							</a>
+						</p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>`,
 			{ headers: { "Content-Type": "text/html" } },
 		);
 	});
