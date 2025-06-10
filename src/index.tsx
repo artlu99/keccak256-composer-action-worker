@@ -28,13 +28,13 @@ to enable Share Action`;
 				intents: [
 					<Button.Link
 						key="deeplink"
-						href={`https://snappa-mini-app.artlu.workers.dev/sassy?castHash=${hash}&castFid=${fid}`}
+						href={`https://snappa-mini-app.sillygoose.workers.dev/sassy?castHash=${hash}&castFid=${fid}`}
 					>
 						Mobile
 					</Button.Link>,
 					<Button.Link
 						key="permalink"
-						href={`https://farcaster.xyz/miniapps/zTVU_TOaKbz1/snappa--/sassy?castHash=${hash}&castFid=${fid}`}
+						href={`https://farcaster.xyz/miniapps/N7smVrdzorSk/snappa--/sassy?castHash=${hash}&castFid=${fid}`}
 					>
 						Snappa
 					</Button.Link>,
@@ -100,11 +100,11 @@ to enable Share Action`;
 						<br />
 						<p class="text-sm italic my-5 text-accent">
 							<a
-								href="https://farcaster.xyz/miniapps/zTVU_TOaKbz1/snappa--"
+								href="https://farcaster.xyz/miniapps/N7smVrdzorSk/snappa--"
 								target="_blank"
 								rel="noopener noreferrer"
 							>
-								https://farcaster.xyz/miniapps/zTVU_TOaKbz1/snappa--
+								https://farcaster.xyz/miniapps/N7smVrdzorSk/snappa--
 							</a>
 						</p>
 					</div>
